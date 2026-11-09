@@ -1,0 +1,13 @@
+# Pinned so the project runs the same everywhere (Python 3.13)
+numpy==2.5.3
+pandas==3.0.5
+pyarrow==26.0.1
+requests==2.34.2
+scikit-learn==1.9.1
+lightgbm==4.7.0
+xgboost==3.4.1
+catboost==1.2.10
+optuna==5.0.0
+shap==0.54.1
+fastapi==0.162.2
+uvicorn==0.54.0

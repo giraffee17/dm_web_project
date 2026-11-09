@@ -1,0 +1,9 @@
+# Python environment and caches (each person makes their own)
+.venv/
+__pycache__/
+*.pyc
+
+# Editor and OS files
+.vscode/
+.DS_Store
+Thumbs.db
