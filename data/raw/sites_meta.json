@@ -1,0 +1,50 @@
+{
+  "ulaanbaatar": {
+    "requested_lat": 47.92,
+    "requested_lon": 106.92,
+    "grid_lat": 47.90001,
+    "grid_lon": 106.899994,
+    "elevation_m": 1302.0,
+    "utc_offset_seconds": 28800
+  },
+  "uliastai": {
+    "requested_lat": 47.74,
+    "requested_lon": 96.84,
+    "grid_lat": 47.699997,
+    "grid_lon": 96.80002,
+    "elevation_m": 1754.0,
+    "utc_offset_seconds": 28800
+  },
+  "khovd": {
+    "requested_lat": 48.01,
+    "requested_lon": 91.64,
+    "grid_lat": 48.0,
+    "grid_lon": 91.600006,
+    "elevation_m": 1393.0,
+    "utc_offset_seconds": 28800
+  },
+  "moron": {
+    "requested_lat": 49.64,
+    "requested_lon": 100.16,
+    "grid_lat": 49.600006,
+    "grid_lon": 100.20001,
+    "elevation_m": 1285.0,
+    "utc_offset_seconds": 28800
+  },
+  "irkutsk": {
+    "requested_lat": 52.29,
+    "requested_lon": 104.29,
+    "grid_lat": 52.300003,
+    "grid_lon": 104.30002,
+    "elevation_m": 434.0,
+    "utc_offset_seconds": 28800
+  },
+  "ulaanbaatar_daily": {
+    "requested_lat": 47.92,
+    "requested_lon": 106.92,
+    "grid_lat": 48.0,
+    "grid_lon": 107.0,
+    "elevation_m": 1302.0,
+    "utc_offset_seconds": 28800
+  }
+}

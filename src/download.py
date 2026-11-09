@@ -70,7 +70,14 @@ def get_json(params: dict) -> dict:
             continue
 
         if r.status_code == 200:
-            return r.json()
+            try:
+                return r.json()
+            except ValueError:
+                # The reply was cut off or empty (unstable connection): try again.
+                wait = 20 * attempt
+                print(f"    incomplete reply from the API, retry in {wait}s")
+                time.sleep(wait)
+                continue
 
         reason = r.text[:200]
         if r.status_code == 429:
@@ -99,13 +106,13 @@ def to_frame(payload: dict, block: str, site: str) -> pd.DataFrame:
     return df
 
 
-def save_site_meta(site: str, payload: dict):
+def save_site_meta(site: str, payload: dict, key: str):
     """Remember the real ERA5 grid cell (lat, lon, elevation) the API used.
     Useful to explain that ERA5 is a 0.25 degree grid, not a weather station."""
     path = config.RAW_DIR / "sites_meta.json"
     meta = json.loads(path.read_text()) if path.exists() else {}
     lat, lon = config.SITES[site]
-    meta[site] = {
+    meta[key] = {
         "requested_lat": lat, "requested_lon": lon,
         "grid_lat": payload.get("latitude"), "grid_lon": payload.get("longitude"),
         "elevation_m": payload.get("elevation"),
@@ -132,7 +139,8 @@ def download_chunk(site, start, end, block, variables, model, out_path):
     df = to_frame(payload, block, site)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(out_path, index=False)
-    save_site_meta(site, payload)
+    # Hourly and daily data use different grids, so keep them as separate entries.
+    save_site_meta(site, payload, key=site if block == "hourly" else f"{site}_daily")
     print(f"             saved {len(df):,} rows")
     return True
 
