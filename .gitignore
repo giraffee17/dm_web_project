@@ -7,3 +7,6 @@ __pycache__/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Half-written files from an interrupted download
+*.tmp

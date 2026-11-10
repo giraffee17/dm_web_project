@@ -13,6 +13,7 @@ DATA_DIR = ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 HOURLY_DIR = RAW_DIR / "hourly"                         # hourly chunks, one file per site per decade
 DAILY_EDA_DIR = RAW_DIR / "daily_ub"                    # UB daily chunks for EDA, one file per decade
+MANIFEST_PATH = RAW_DIR / "manifest.json"               # what each raw file contains + its fingerprint
 PROCESSED_DIR = DATA_DIR / "processed"
 MODELS_DIR = ROOT / "models"
 STATIC_DATA_DIR = ROOT / "static" / "data"              # chart JSON for the website
@@ -73,6 +74,30 @@ HOURLY_VARS = [
     "snow_depth",
     "shortwave_radiation",
 ]
+
+# ---------- Plausible value ranges (data validation) ----------
+# Every downloaded chunk is checked against these BEFORE it is saved.
+# They are physical limits, wide on purpose: they catch broken data
+# (wrong units, empty columns, garbage), not real extreme weather.
+# Units are Open-Meteo defaults: degC, %, hPa, km/h, degrees, mm, m, W/m2, cm.
+VALID_RANGES = {
+    "temperature_2m": (-70, 50),
+    "relative_humidity_2m": (0, 100),
+    "dew_point_2m": (-80, 40),
+    "pressure_msl": (900, 1100),
+    "wind_speed_10m": (0, 150),
+    "wind_direction_10m": (0, 360),
+    "cloud_cover": (0, 100),
+    "precipitation": (0, 100),
+    "snow_depth": (0, 10),
+    "shortwave_radiation": (0, 1400),
+    "temperature_2m_mean": (-70, 50),
+    "temperature_2m_min": (-70, 50),
+    "temperature_2m_max": (-70, 50),
+    "precipitation_sum": (0, 300),
+    "snowfall_sum": (0, 200),
+}
+ERA5_FIRST_DAY = "1940-01-01"   # ERA5 starts at 00:00 UTC = 08:00 in UB, so this local day is incomplete
 
 # ---------- Time split (never random) ----------
 TRAIN_YEARS = (1980, 2019)
