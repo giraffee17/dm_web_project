@@ -1,0 +1,175 @@
+{
+ "n_start": 158,
+ "n_after_correlation_filter": 126,
+ "chosen_n": 40,
+ "tolerance_degC": 0.01,
+ "curve": [
+  {
+   "n_features": 1,
+   "d1": 2.7136,
+   "d2": 3.7263,
+   "d3": 4.0456,
+   "mean": 3.4952
+  },
+  {
+   "n_features": 2,
+   "d1": 2.3871,
+   "d2": 3.484,
+   "d3": 3.9432,
+   "mean": 3.2714
+  },
+  {
+   "n_features": 3,
+   "d1": 2.0605,
+   "d2": 3.298,
+   "d3": 3.8945,
+   "mean": 3.0843
+  },
+  {
+   "n_features": 5,
+   "d1": 1.8878,
+   "d2": 3.0962,
+   "d3": 3.7359,
+   "mean": 2.9066
+  },
+  {
+   "n_features": 8,
+   "d1": 1.7345,
+   "d2": 2.9159,
+   "d3": 3.6359,
+   "mean": 2.7621
+  },
+  {
+   "n_features": 10,
+   "d1": 1.7109,
+   "d2": 2.8623,
+   "d3": 3.5624,
+   "mean": 2.7118
+  },
+  {
+   "n_features": 15,
+   "d1": 1.6761,
+   "d2": 2.7565,
+   "d3": 3.5026,
+   "mean": 2.6451
+  },
+  {
+   "n_features": 20,
+   "d1": 1.6102,
+   "d2": 2.6813,
+   "d3": 3.3685,
+   "mean": 2.5533
+  },
+  {
+   "n_features": 25,
+   "d1": 1.5605,
+   "d2": 2.666,
+   "d3": 3.3414,
+   "mean": 2.5226
+  },
+  {
+   "n_features": 30,
+   "d1": 1.5345,
+   "d2": 2.6626,
+   "d3": 3.3693,
+   "mean": 2.5221
+  },
+  {
+   "n_features": 40,
+   "d1": 1.5184,
+   "d2": 2.6389,
+   "d3": 3.3536,
+   "mean": 2.5036
+  },
+  {
+   "n_features": 50,
+   "d1": 1.5088,
+   "d2": 2.6509,
+   "d3": 3.3552,
+   "mean": 2.505
+  },
+  {
+   "n_features": 60,
+   "d1": 1.5137,
+   "d2": 2.6235,
+   "d3": 3.3588,
+   "mean": 2.4986
+  },
+  {
+   "n_features": 80,
+   "d1": 1.5116,
+   "d2": 2.646,
+   "d3": 3.344,
+   "mean": 2.5005
+  },
+  {
+   "n_features": 126,
+   "d1": 1.5024,
+   "d2": 2.6326,
+   "d3": 3.3861,
+   "mean": 2.507
+  }
+ ],
+ "top_features": [
+  {
+   "feature": "ub_t_anom",
+   "importance_degC": 0.563
+  },
+  {
+   "feature": "mor_t_anom",
+   "importance_degC": 0.257
+  },
+  {
+   "feature": "irk_wind_from_n",
+   "importance_degC": 0.14
+  },
+  {
+   "feature": "irk_t_anom",
+   "importance_degC": 0.121
+  },
+  {
+   "feature": "ub_snow_depth_end",
+   "importance_degC": 0.086
+  },
+  {
+   "feature": "irk_p_change_24h",
+   "importance_degC": 0.084
+  },
+  {
+   "feature": "uli_wind_from_e",
+   "importance_degC": 0.084
+  },
+  {
+   "feature": "ub_p_change_24h",
+   "importance_degC": 0.077
+  },
+  {
+   "feature": "uli_p_change_24h",
+   "importance_degC": 0.055
+  },
+  {
+   "feature": "kho_t_anom",
+   "importance_degC": 0.051
+  },
+  {
+   "feature": "irk_minus_ub_p_mean",
+   "importance_degC": 0.05
+  },
+  {
+   "feature": "kho_p_change_24h",
+   "importance_degC": 0.047
+  },
+  {
+   "feature": "kho_wind_from_n",
+   "importance_degC": 0.027
+  },
+  {
+   "feature": "kho_dew_end",
+   "importance_degC": 0.026
+  },
+  {
+   "feature": "kho_wind_speed",
+   "importance_degC": 0.023
+  }
+ ]
+}

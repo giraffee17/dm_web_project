@@ -87,6 +87,102 @@ Correlation between today's temperature anomaly at each site and UB's anomaly 1,
    target crosses a border. **Targets** are exactly the UB anomaly 1, 2, 3 days later. **Daily aggregation** gives
    the right answers on hand-made data. **Reproducible:** two builds give the same fingerprint.
 
+## Phase 3: feature selection, model choice, tuning and evaluation
+
+```
+.venv\Scripts\python -m src.train                  # all training stages (about 25 min on 2 CPU cores)
+.venv\Scripts\python -m src.evaluate --unlock-test # the one-time test evaluation (reproduces the same numbers)
+.venv\Scripts\python -m src.export                 # chart data for the website + models/meta.json
+.venv\Scripts\python -m tests.run                  # 43 checks, should end with ALL TESTS PASSED
+```
+
+### Results (test set 2023 to 2025, evaluated once)
+
+Errors are in degC of daily mean temperature. (The forecast is anomaly + normal, and the normal is known
+exactly, so the error of the temperature equals the error of the anomaly.)
+
+| Horizon | Model RMSE | Model MAE | Persistence RMSE | Climatology RMSE | Better than persistence by |
+|---|---|---|---|---|---|
+| day+1 | **1.44** | 1.09 | 3.06 | 4.38 | 53% |
+| day+2 | **2.70** | 2.07 | 4.42 | 4.38 | 39% |
+| day+3 | **3.39** | 2.60 | 4.99 | 4.38 | 32% |
+
+*Persistence:* "the anomaly tomorrow equals today's". *Climatology:* "tomorrow is a normal day".
+These baselines are shown here only (not on the website). Day+1 may be up to about 0.17 degC optimistic
+(see the known limitation in Data notes).
+
+### 1. Feature selection: 158 -> 126 -> 40 features
+
+1. **Correlation filter (train data):** 32 near-duplicates (|r| > 0.95) dropped, e.g. Moron's mean and max
+   temperature (r = 0.993). Of each pair, the feature more related to the targets is kept.
+2. **Permutation importance (validation):** shuffle one feature, measure how much the error grows.
+   Top 5: UB anomaly, Moron anomaly, Irkutsk northerly wind, Irkutsk anomaly, UB snow depth.
+3. **Top N curve:** mean validation RMSE falls from 3.50 (1 feature) to 2.52 (25), then flattens
+   (2.50 at 40, 2.51 at all 126). The smallest N within 0.01 degC of the best is **N = 40**.
+
+### 2. Bake-off (validation RMSE, mean of the 3 horizons)
+
+| Library | Defaults | Fairness check* |
+|---|---|---|
+| **CatBoost** | **2.436** | **2.405** |
+| LightGBM | 2.504 | 2.468 |
+| XGBoost | 2.586 | 2.538 |
+
+\*Library defaults are not a level field: CatBoost builds 1,000 trees by default, the others 100.
+The fairness check lets every library grow as many trees as it needs (early stopping on validation).
+**CatBoost wins both ways.** (Feature selection used LightGBM, which if anything favours LightGBM.)
+
+### 3. Optuna tuning (CatBoost, 50 trials per horizon)
+
+TPE sampler (seed 42), median pruner (97 of 150 trials, about two thirds, stopped early), early stopping inside every trial,
+studies stored in `models/optuna.sqlite`. Searched: learning rate, depth, L2 regularization, random strength,
+subsample. **Trial 0 is always CatBoost's own default**, so tuning can never end up worse than the defaults.
+
+| Horizon | Defaults (trial 0) | Tuned | Best found at trial |
+|---|---|---|---|
+| day+1 | 1.396 | 1.370 | 9 |
+| day+2 | 2.549 | 2.528 | 31 |
+| day+3 | 3.299 | 3.285 | 34 |
+
+Tuning gains are small (0.01 to 0.03 degC): CatBoost's defaults were already close to the best settings.
+
+### 4. Overfitting check
+
+| Horizon | Train RMSE | Validation RMSE | Test RMSE (same model) | Test RMSE (final model) |
+|---|---|---|---|---|
+| day+1 | 0.48 | 1.37 | 1.45 | 1.44 |
+| day+2 | 1.78 | 2.53 | 2.70 | 2.70 |
+| day+3 | 2.47 | 3.29 | 3.36 | 3.39 |
+
+1. **Validation -> test gap is small** (+0.08, +0.17, +0.07 for the same model). Persistence also got worse on
+   test (2.87 -> 3.06 at day+1), so 2023 to 2025 was a slightly harder period, not a sign of overfitting.
+2. **Train error is much lower than validation**, mostly at day+1. Boosting keeps memorizing the training
+   years; the learning curves show the validation error is flat after the early stopping point while the training
+   error keeps falling. Early stopping picks the point where validation is best, so the extra memorizing costs nothing.
+3. Day+1 reached the 8,000 round cap while validation was still improving by less than 0.001 degC.
+4. **Final model** (retrained on 1980 to 2022, decided before testing): on test it is equal to the train-only model
+   (1.44 vs 1.45, 2.70 vs 2.70, 3.39 vs 3.36). It is the deployed model because it has seen the most recent climate.
+
+### 5. What drives the forecast (SHAP, final models, 2023 to 2025)
+
+Share of total feature importance (mean |SHAP|) by group:
+
+| Group | day+1 | day+2 | day+3 |
+|---|---|---|---|
+| Upwind sites | 59% | 69% | 68% |
+| UB today | 36% | 26% | 24% |
+| UB recent days | 5% | 5% | 8% |
+
+UB's own anomaly dominates day+1. From day+2 on, **upwind sites carry about two thirds of the importance**,
+and UB's snow depth becomes a top feature (snow cover makes calm, clear nights much colder).
+
+### 6. The test lock
+
+`src/evaluate.py` is the only code that reads the test rows. The first `--unlock-test` run saves fingerprints of the
+models in `models/reports/test_unlock_log.json`; running it again with the same models reproduces the same numbers,
+but testing *different* models is refused. Retraining on another computer may give slightly different models,
+which the lock would then refuse: the models in this repo are the evaluated ones.
+
 ## Data notes
 
 1. Hourly model data (1980 to 2025, 5 sites) uses `era5_seamless` (ERA5-Land + ERA5), because pure
@@ -123,11 +219,19 @@ These safeguards were tested by breaking the data on purpose in 19 ways (empty c
 duplicate hour, Kelvin instead of Celsius, edited file, changed model, failed download, and more).
 All 19 were caught.
 
+### Problems found in Phase 3
+
+| # | Problem found | What we changed | Why it matters |
+|---|---|---|---|
+| 8 | The bake-off with pure defaults compared **1,000 CatBoost trees with 100 LightGBM/XGBoost trees**. | Added a fairness check where every library grows as many trees as it needs. CatBoost wins both ways. | A winner should not depend on an unfair default. |
+| 9 | Tuning was slower than planned, and the first speed fix **cut CatBoost's own default learning rate (0.029) out of the search range**. Tuned day+2 was then no better than the defaults. | Learning rate range widened to include it, and **trial 0 of every study is now the library default**. | Tuning can never end up worse than doing nothing. |
+| 10 | One tuned setting (`bagging_temperature`) **does nothing** with CatBoost's default sampling method (MVS). | Replaced with `subsample`, which MVS does use. | A search over a setting that is ignored wastes trials and misleads. |
+
 ### Risks planned for later phases
 
 | Risk | Plan |
 |---|---|
 | **Train/serve mismatch:** the model learns from ERA5, but the live site uses the Open-Meteo forecast API, a different weather model. | Phase 4: compare both sources on overlapping days and show a note about it on the site. |
-| **"Is this error good?"** An RMSE means little without a comparison. | Compute two simple baselines, **persistence** (tomorrow's anomaly = today's) and **climatology** (tomorrow = the normal), and report them in this README. |
-| **Wasted data:** the final model would only learn from 1980 to 2019. | After tuning, retrain the final 3 models on train + validation (1980 to 2022) with the tuned settings, then evaluate once on the locked test set (2023 to 2025). |
+| **"Is this error good?"** An RMSE means little without a comparison. | Done in Phase 3: persistence and climatology baselines are in the results table above. |
+| **Wasted data:** the final model would only learn from 1980 to 2019. | Done in Phase 3: the deployed models are retrained on 1980 to 2022 and were evaluated once on the locked test set. |
 | **Data leakage:** features must only use information available at the end of day t. | Checked at the end of every phase before moving on. |

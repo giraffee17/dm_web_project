@@ -1,0 +1,111 @@
+{
+  "settings": "library defaults, seed 42",
+  "results": {
+    "lightgbm": {
+      "d1": {
+        "rmse": 1.5184,
+        "mae": 1.1435,
+        "seconds": 1.13
+      },
+      "d2": {
+        "rmse": 2.6389,
+        "mae": 1.9992,
+        "seconds": 1.0
+      },
+      "d3": {
+        "rmse": 3.3536,
+        "mae": 2.5663,
+        "seconds": 0.87
+      },
+      "mean_rmse": 2.5036
+    },
+    "xgboost": {
+      "d1": {
+        "rmse": 1.563,
+        "mae": 1.1906,
+        "seconds": 0.72
+      },
+      "d2": {
+        "rmse": 2.7318,
+        "mae": 2.0796,
+        "seconds": 0.52
+      },
+      "d3": {
+        "rmse": 3.4639,
+        "mae": 2.6225,
+        "seconds": 0.54
+      },
+      "mean_rmse": 2.5862
+    },
+    "catboost": {
+      "d1": {
+        "rmse": 1.4152,
+        "mae": 1.0772,
+        "seconds": 5.28
+      },
+      "d2": {
+        "rmse": 2.5525,
+        "mae": 1.9218,
+        "seconds": 5.18
+      },
+      "d3": {
+        "rmse": 3.3416,
+        "mae": 2.5566,
+        "seconds": 4.9
+      },
+      "mean_rmse": 2.4364
+    }
+  },
+  "winner": "catboost",
+  "fairness_check": {
+    "settings": "default learning rate, early stopping on validation",
+    "results": {
+      "lightgbm": {
+        "d1": {
+          "rmse": 1.4403,
+          "trees": 1151
+        },
+        "d2": {
+          "rmse": 2.6123,
+          "trees": 302
+        },
+        "d3": {
+          "rmse": 3.3521,
+          "trees": 115
+        },
+        "mean_rmse": 2.4682
+      },
+      "xgboost": {
+        "d1": {
+          "rmse": 1.5412,
+          "trees": 447
+        },
+        "d2": {
+          "rmse": 2.6816,
+          "trees": 27
+        },
+        "d3": {
+          "rmse": 3.3928,
+          "trees": 24
+        },
+        "mean_rmse": 2.5385
+      },
+      "catboost": {
+        "d1": {
+          "rmse": 1.3752,
+          "trees": 8000
+        },
+        "d2": {
+          "rmse": 2.5321,
+          "trees": 3533
+        },
+        "d3": {
+          "rmse": 3.3073,
+          "trees": 1351
+        },
+        "mean_rmse": 2.4049
+      }
+    },
+    "winner": "catboost"
+  }
+}

@@ -15,6 +15,9 @@ What is tested
   5. Targets are exactly the UB anomaly 1, 2 and 3 days later.
   6. hourly_to_daily on tiny hand-made data with known answers.
   7. Reproducible: building twice gives the same fingerprint.
+  8. Models (after Phase 3): training code never sees test rows, the test
+     lock refuses different models, the deployed models load and give
+     sensible forecasts with exactly the selected features.
 """
 
 import sys
@@ -175,6 +178,55 @@ def test_reproducible(hourly, ds):
           fz.fingerprint(ds))
 
 
+def test_models(ds):
+    print("8. Models")
+    import json
+    import shutil
+    import tempfile
+    from pathlib import Path
+
+    import src.evaluate as ev
+    from src.train import load_model, load_report, load_train_val, selected_features
+
+    train, val = load_train_val()
+    check("training code gets no test rows", set(train["split"]) | set(val["split"]) == {"train", "val"})
+    cols = selected_features()
+    check("selected features are real features, no targets",
+          set(cols) <= set(fz.feature_columns(ds)) and not any(c.startswith("target_") for c in cols),
+          f"{len(cols)} features")
+
+    meta = json.loads((config.MODELS_DIR / "meta.json").read_text())
+    lib = meta["library"]
+    check("meta.json lists exactly the selected features", meta["features"] == cols)
+    recent = ds[ds["split"] == "val"].tail(30)
+    for h in config.HORIZONS:
+        pred = load_model(lib, h, "final").predict(recent[cols])
+        check(f"final day+{h} model: 30 forecasts, all finite and within +-25 degC anomaly",
+              len(pred) == 30 and np.isfinite(pred).all() and np.abs(pred).max() < 25,
+              f"range {pred.min():.1f} to {pred.max():.1f}")
+
+    # Test lock: in a temporary copy, pretend different models were tested before.
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        fake_log = tmp / "lock.json"
+        fake_log.write_text(json.dumps([{"time": "earlier", "fingerprints": {"final_d1": "something else"}}]))
+        old = ev.LOCK_PATH
+        ev.LOCK_PATH = fake_log
+        try:
+            ev.check_test_lock(lib, force=False)
+            refused = False
+        except SystemExit:
+            refused = True
+        finally:
+            ev.LOCK_PATH = old
+        check("test lock refuses to test different models", refused)
+    finally:
+        shutil.rmtree(tmp)
+    log = json.loads(ev.LOCK_PATH.read_text())
+    check("the test set was evaluated with one set of models only",
+          all(entry["same_as_first"] for entry in log), f"{len(log)} evaluation run(s)")
+
+
 if __name__ == "__main__":
     print("Loading data...")
     hourly = {site: load_hourly(site) for site in config.SITES}
@@ -188,6 +240,10 @@ if __name__ == "__main__":
     test_targets(ds, full_daily)
     test_hourly_to_daily()
     test_reproducible(hourly, ds)
+    if (config.MODELS_DIR / "meta.json").exists():
+        test_models(ds)
+    else:
+        print("8. Models: skipped (run Phase 3 first)")
 
     passed = sum(RESULTS)
     print(f"\n{passed} / {len(RESULTS)} checks passed")

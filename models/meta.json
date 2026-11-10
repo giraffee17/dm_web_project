@@ -1,0 +1,121 @@
+{
+ "project": "Forecasting the Coldest Capital on Earth",
+ "created": "2026-11-10T04:06:43+00:00",
+ "target": "Ulaanbaatar daily mean temperature anomaly, day+1 to day+3 (forecast = anomaly + normal)",
+ "library": "catboost",
+ "library_version": "1.2.10",
+ "horizons": {
+  "d1": {
+   "model_file": "model_d1.cbm",
+   "rounds": 8588,
+   "params": {
+    "learning_rate": 0.027220428494595557,
+    "depth": 6,
+    "l2_leaf_reg": 1.1240768803005543,
+    "random_strength": 6.586289317583113,
+    "subsample": 0.6293899908000085
+   },
+   "val_rmse": 1.37,
+   "test_rmse": 1.44,
+   "test_mae": 1.092
+  },
+  "d2": {
+   "model_file": "model_d2.cbm",
+   "rounds": 1311,
+   "params": {
+    "learning_rate": 0.06249367064220001,
+    "depth": 6,
+    "l2_leaf_reg": 13.032869313070155,
+    "random_strength": 1.352326307375088,
+    "subsample": 0.8244576325173484
+   },
+   "val_rmse": 2.528,
+   "test_rmse": 2.7,
+   "test_mae": 2.068
+  },
+  "d3": {
+   "model_file": "model_d3.cbm",
+   "rounds": 954,
+   "params": {
+    "learning_rate": 0.060074874102278075,
+    "depth": 7,
+    "l2_leaf_reg": 24.497416160997314,
+    "random_strength": 1.9169145895219646,
+    "subsample": 0.5456701353256612
+   },
+   "val_rmse": 3.285,
+   "test_rmse": 3.387,
+   "test_mae": 2.602
+  }
+ },
+ "features": [
+  "ub_t_anom",
+  "mor_t_anom",
+  "irk_wind_from_n",
+  "irk_t_anom",
+  "ub_snow_depth_end",
+  "irk_p_change_24h",
+  "uli_wind_from_e",
+  "ub_p_change_24h",
+  "uli_p_change_24h",
+  "kho_t_anom",
+  "irk_minus_ub_p_mean",
+  "kho_p_change_24h",
+  "kho_wind_from_n",
+  "kho_dew_end",
+  "kho_wind_speed",
+  "kho_p_mean",
+  "kho_t_range",
+  "mor_p_change_24h",
+  "ub_rh_mean",
+  "ub_wind_from_e",
+  "uli_cloud_mean",
+  "uli_wind_from_n",
+  "uli_t_range",
+  "mor_wind_from_e",
+  "mor_t_range",
+  "ub_t_range",
+  "mor_wind_from_n",
+  "ub_p_mean",
+  "ub_t_anom_roll3_mean",
+  "uli_t_anom",
+  "uli_precip_sum",
+  "irk_precip_sum",
+  "irk_dew_end",
+  "ub_dew_end",
+  "irk_wind_speed",
+  "kho_wind_from_e",
+  "ub_p_mean_roll30_mean",
+  "irk_cloud_mean",
+  "ub_t_anom_roll30_mean",
+  "kho_minus_ub_p_mean"
+ ],
+ "trained_on": [
+  "1980-01-30",
+  "2022-12-28"
+ ],
+ "data_source": "Open-Meteo archive API, ERA5 (era5_seamless), 5 sites, hourly",
+ "sites": {
+  "ulaanbaatar": {
+   "lat": 47.92,
+   "lon": 106.92
+  },
+  "uliastai": {
+   "lat": 47.74,
+   "lon": 96.84
+  },
+  "khovd": {
+   "lat": 48.01,
+   "lon": 91.64
+  },
+  "moron": {
+   "lat": 49.64,
+   "lon": 100.16
+  },
+  "irkutsk": {
+   "lat": 52.29,
+   "lon": 104.29
+  }
+ },
+ "dataset_fingerprint": "478f8c2f1a67"
+}

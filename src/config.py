@@ -120,6 +120,19 @@ UPWIND_LAG_VARS = ["t_anom", "p_mean"]
 DIFF_VARS = ["t_anom", "p_mean"]           # upwind minus UB
 MIN_HISTORY_DAYS = 31                      # longest look-back: 30 day rolling window + today
 
+# ---------- Modeling (Phase 3) ----------
+N_JOBS = 4                      # CPU threads per model (fixed, so results are repeatable)
+CORR_THRESHOLD = 0.95           # drop one of each pair of features more correlated than this
+PERM_REPEATS = 5                # permutation importance: shuffles per feature
+N_GRID = [1, 2, 3, 5, 8, 10, 15, 20, 25, 30, 40, 50, 60, 80]   # feature counts to try (+ all)
+N_TOLERANCE = 0.01              # degC: smallest N whose error is within 0.01 of the best
+LIBRARIES = ["lightgbm", "xgboost", "catboost"]
+OPTUNA_TRIALS = 50              # trials per horizon (best score levels off well before this)
+MAX_ROUNDS = 8000               # boosting rounds cap; early stopping decides the real number
+EARLY_STOPPING = 200            # stop when validation RMSE has not improved for this many rounds
+REPORTS_DIR = MODELS_DIR / "reports"          # results of each step (JSON), read by export.py
+OPTUNA_DB = MODELS_DIR / "optuna.sqlite"
+
 # ---------- Processed outputs ----------
 DAILY_PATH = PROCESSED_DIR / "daily.parquet"        # daily values per site (also used for EDA)
 DATASET_PATH = PROCESSED_DIR / "dataset.parquet"    # features + targets + split label

@@ -1,0 +1,90 @@
+{
+  "val": {
+    "d1": {
+      "persistence": {
+        "rmse": 2.871,
+        "mae": 2.167
+      },
+      "climatology": {
+        "rmse": 4.264,
+        "mae": 3.451
+      },
+      "model": {
+        "rmse": 1.37,
+        "mae": 1.046
+      }
+    },
+    "d2": {
+      "persistence": {
+        "rmse": 4.34,
+        "mae": 3.355
+      },
+      "climatology": {
+        "rmse": 4.262,
+        "mae": 3.448
+      },
+      "model": {
+        "rmse": 2.528,
+        "mae": 1.907
+      }
+    },
+    "d3": {
+      "persistence": {
+        "rmse": 4.957,
+        "mae": 3.891
+      },
+      "climatology": {
+        "rmse": 4.257,
+        "mae": 3.441
+      },
+      "model": {
+        "rmse": 3.285,
+        "mae": 2.509
+      }
+    }
+  },
+  "test": {
+    "d1": {
+      "persistence": {
+        "rmse": 3.06,
+        "mae": 2.284
+      },
+      "climatology": {
+        "rmse": 4.383,
+        "mae": 3.421
+      },
+      "model": {
+        "rmse": 1.44,
+        "mae": 1.092
+      }
+    },
+    "d2": {
+      "persistence": {
+        "rmse": 4.424,
+        "mae": 3.354
+      },
+      "climatology": {
+        "rmse": 4.381,
+        "mae": 3.417
+      },
+      "model": {
+        "rmse": 2.7,
+        "mae": 2.068
+      }
+    },
+    "d3": {
+      "persistence": {
+        "rmse": 4.99,
+        "mae": 3.836
+      },
+      "climatology": {
+        "rmse": 4.379,
+        "mae": 3.414
+      },
+      "model": {
+        "rmse": 3.387,
+        "mae": 2.602
+      }
+    }
+  }
+}

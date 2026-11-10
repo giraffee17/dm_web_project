@@ -1,0 +1,61 @@
+{
+  "library": "catboost",
+  "test_included": true,
+  "note": "train/val/test: tuned model trained on 1980-2019; test_final_model: deployed model trained on 1980-2022",
+  "horizons": {
+    "d1": {
+      "train": {
+        "rmse": 0.481,
+        "mae": 0.367
+      },
+      "val": {
+        "rmse": 1.37,
+        "mae": 1.046
+      },
+      "test": {
+        "rmse": 1.454,
+        "mae": 1.103
+      },
+      "test_final_model": {
+        "rmse": 1.44,
+        "mae": 1.092
+      }
+    },
+    "d2": {
+      "train": {
+        "rmse": 1.783,
+        "mae": 1.387
+      },
+      "val": {
+        "rmse": 2.528,
+        "mae": 1.907
+      },
+      "test": {
+        "rmse": 2.697,
+        "mae": 2.075
+      },
+      "test_final_model": {
+        "rmse": 2.7,
+        "mae": 2.068
+      }
+    },
+    "d3": {
+      "train": {
+        "rmse": 2.474,
+        "mae": 1.942
+      },
+      "val": {
+        "rmse": 3.285,
+        "mae": 2.509
+      },
+      "test": {
+        "rmse": 3.36,
+        "mae": 2.579
+      },
+      "test_final_model": {
+        "rmse": 3.387,
+        "mae": 2.602
+      }
+    }
+  }
+}
