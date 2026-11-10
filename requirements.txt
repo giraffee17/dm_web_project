@@ -8,11 +8,16 @@ annotated-doc==0.0.5
 annotated-types==0.8.0
     # via pydantic
 anyio==4.16.0
-    # via starlette
+    # via
+    #   httpx
+    #   starlette
 catboost==1.2.10
     # via -r requirements.in
 certifi==2026.10.23
-    # via requests
+    # via
+    #   httpcore
+    #   httpx
+    #   requests
 charset-normalizer==3.5.2
     # via requests
 click==8.5.1
@@ -38,10 +43,17 @@ fonttools==4.68.0
 graphviz==0.21
     # via catboost
 h11==0.16.0
-    # via uvicorn
+    # via
+    #   httpcore
+    #   uvicorn
+httpcore==1.0.9
+    # via httpx
+httpx==0.28.1
+    # via -r requirements.in
 idna==3.20
     # via
     #   anyio
+    #   httpx
     #   requests
 joblib==1.6.0
     # via scikit-learn

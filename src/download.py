@@ -237,12 +237,12 @@ def seconds_until_next_hour() -> int:
     return int((next_hour - now).total_seconds()) + 60   # plus a 1 minute safety margin
 
 
-def get_json(params: dict) -> dict:
+def get_json(params: dict, url: str = config.ARCHIVE_URL) -> dict:
     """Call the archive API with retries and rate limit handling."""
     headers = {"User-Agent": config.USER_AGENT}
     for attempt in range(1, MAX_TRIES + 1):
         try:
-            r = requests.get(config.ARCHIVE_URL, params=params, headers=headers, timeout=180)
+            r = requests.get(url, params=params, headers=headers, timeout=180)
         except requests.RequestException as e:
             wait = 20 * attempt
             print(f"    network error ({e.__class__.__name__}), retry in {wait}s")

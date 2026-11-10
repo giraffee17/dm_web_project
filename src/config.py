@@ -133,6 +133,14 @@ EARLY_STOPPING = 200            # stop when validation RMSE has not improved for
 REPORTS_DIR = MODELS_DIR / "reports"          # results of each step (JSON), read by export.py
 OPTUNA_DB = MODELS_DIR / "optuna.sqlite"
 
+# ---------- Live forecast (Phase 4) ----------
+LIVE_PAST_DAYS = 60             # days of recent weather fetched from the forecast API (31 needed)
+LIVE_TIMEOUT = 30               # seconds per API request
+LIVE_RETRY_MINUTES = 10         # after a failed fetch, wait this long before trying again
+CACHE_DIR = ROOT / "cache"      # one cached forecast per day (not in git)
+STATIC_DIR = ROOT / "static"
+SOURCE_CHECK_PATH = STATIC_DATA_DIR / "source_check.json"
+
 # ---------- Processed outputs ----------
 DAILY_PATH = PROCESSED_DIR / "daily.parquet"        # daily values per site (also used for EDA)
 DATASET_PATH = PROCESSED_DIR / "dataset.parquet"    # features + targets + split label

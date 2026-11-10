@@ -18,6 +18,11 @@ What is tested
   8. Models (after Phase 3): training code never sees test rows, the test
      lock refuses different models, the deployed models load and give
      sensible forecasts with exactly the selected features.
+  9. Live serving (offline, replaying archive data as if it were live): the
+     website's forecast equals the training pipeline's prediction for the
+     same day, today's forecast hours are ignored, bad data is refused, the
+     daily cache and the stale fallback work, the API answers, and the
+     source check runs.
 """
 
 import sys
@@ -227,6 +232,133 @@ def test_models(ds):
           all(entry["same_as_first"] for entry in log), f"{len(log)} evaluation run(s)")
 
 
+def test_live(ds, hourly):
+    print("9. Live serving (offline)")
+    import datetime as dt
+    import json
+    import shutil
+    import tempfile
+    from pathlib import Path
+
+    import src.check_sources as cs
+    import src.live as live
+    from src.train import load_model, selected_features
+
+    meta = json.loads((config.MODELS_DIR / "meta.json").read_text())
+    cols = selected_features()
+    today = dt.date(2021, 6, 10)                      # a validation-period day
+    t0, t1 = pd.Timestamp(today) - pd.Timedelta(days=60), pd.Timestamp(today) + pd.Timedelta(days=1)
+
+    def fake_live(junk_today=False):
+        """60 past days + all 24 hours of 'today', like the forecast API returns."""
+        out = {}
+        for s, h in hourly.items():
+            w = h[(h["time"] >= t0) & (h["time"] < t1)].copy()
+            w[config.HOURLY_VARS] = w[config.HOURLY_VARS].astype("float64")
+            if junk_today:                            # today's hours are model forecasts: must be ignored
+                w.loc[w["time"] >= pd.Timestamp(today), "temperature_2m"] = 40.0
+            out[s] = w
+        return out
+
+    f = live.make_forecast(fake_live(), today=today)
+    check("forecast is issued from the last complete day (yesterday)",
+          f["data_through"] == "2021-06-09" and f["data_is_current"])
+    row = ds.loc[[pd.Timestamp("2021-06-09")], cols]
+    same = all(abs(d["anomaly"] - round(float(load_model(meta["library"], d["horizon"], "final").predict(row)[0]), 1)) < 1e-9
+               for d in f["days"])
+    check("website forecast = training pipeline prediction for the same day", same)
+    check("temperature = normal + anomaly",
+          all(abs(d["temperature"] - (d["normal"] + d["anomaly"])) <= 0.11 for d in f["days"]))
+    f2 = live.make_forecast(fake_live(junk_today=True), today=today)
+    check("today's forecast hours are ignored (40 degC junk changes nothing)", f2["days"] == f["days"])
+
+    bad = fake_live()
+    bad["moron"].loc[bad["moron"].index[-30:], "snow_depth"] = np.nan
+    try:
+        live.make_forecast(bad, today=today)
+        refused = False
+    except live.LiveDataError:
+        refused = True
+    check("live data with missing values is refused", refused)
+
+    # Cache + stale fallback, in a temporary cache folder.
+    tmp = Path(tempfile.mkdtemp())
+    old_dir, old_make, old_today = config.CACHE_DIR, live.make_forecast, live.today_ub
+    calls = {"n": 0}
+    try:
+        config.CACHE_DIR = tmp
+        live.today_ub = lambda: today
+        live._last_failure.update(time=0.0, error="")
+
+        def counting(today=None):
+            calls["n"] += 1
+            return f
+        live.make_forecast = counting
+        a, b = live.get_forecast(), live.get_forecast()
+        check("forecast computed once per day, then served from cache", calls["n"] == 1 and a == b)
+
+        live.today_ub = lambda: today + dt.timedelta(days=1)
+
+        def failing(today=None):
+            calls["n"] += 1
+            raise live.LiveDataError("API down")
+        live.make_forecast = failing
+        c = live.get_forecast()
+        check("if the API fails, the newest cached forecast is served as stale",
+              c["stale"] and c["data_through"] == f["data_through"])
+        n_before = calls["n"]
+        live.get_forecast()
+        check("after a failure, no new API attempt for 10 minutes", calls["n"] == n_before)
+    finally:
+        config.CACHE_DIR, live.make_forecast, live.today_ub = old_dir, old_make, old_today
+        live._last_failure.update(time=0.0, error="")
+        shutil.rmtree(tmp)
+
+    # The web API itself.
+    from fastapi.testclient import TestClient
+    import app.main as main
+    client = TestClient(main.app)
+    old_get = main.get_forecast
+    try:
+        main.get_forecast = lambda: f
+        r = client.get("/api/forecast")
+        check("GET /api/forecast answers 200 with 3 days", r.status_code == 200 and len(r.json()["days"]) == 3)
+
+        def down():
+            raise live.LiveDataError("no data")
+        main.get_forecast = down
+        check("GET /api/forecast answers 503 when no forecast exists", client.get("/api/forecast").status_code == 503)
+    finally:
+        main.get_forecast = old_get
+    r = client.get("/api/meta")
+    check("GET /api/meta answers 200 with the model info", r.status_code == 200 and r.json()["library"] == meta["library"])
+    check("GET / serves the website", client.get("/").status_code == 200)
+
+    # Source check, offline: 'live' = archive + small noise, 'archive' = archive.
+    rng = np.random.default_rng(config.SEED)
+    old = (cs.fetch_site, cs.fetch_archive, cs.today_ub, config.SOURCE_CHECK_PATH)
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        def noisy(site):
+            w = fake_live()[site]
+            w["temperature_2m"] += rng.normal(0, 0.5, len(w))
+            return w
+        cs.fetch_site = noisy
+        cs.fetch_archive = lambda site, start, end: fake_live()[site]
+        cs.today_ub = lambda: today
+        config.SOURCE_CHECK_PATH = tmp / "source_check.json"
+        import contextlib, io
+        with contextlib.redirect_stdout(io.StringIO()):
+            cs.run()
+        out = json.loads(config.SOURCE_CHECK_PATH.read_text())
+        check("source check runs and compares overlapping days",
+              out["summary"]["days_compared"] >= 20 and abs(out["summary"]["ub_temperature_bias"]) < 0.2,
+              f"{out['summary']['days_compared']} days, forecast change d1 {out['summary']['forecast_change_mae']['d1']} degC")
+    finally:
+        cs.fetch_site, cs.fetch_archive, cs.today_ub, config.SOURCE_CHECK_PATH = old
+        shutil.rmtree(tmp)
+
+
 if __name__ == "__main__":
     print("Loading data...")
     hourly = {site: load_hourly(site) for site in config.SITES}
@@ -242,6 +374,7 @@ if __name__ == "__main__":
     test_reproducible(hourly, ds)
     if (config.MODELS_DIR / "meta.json").exists():
         test_models(ds)
+        test_live(ds, hourly)
     else:
         print("8. Models: skipped (run Phase 3 first)")
 

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UB Forecast (placeholder)</title>
+  <!-- Temporary page for Phase 4. The real website is built in Phase 5. -->
+  <style>
+    body { background: #0f1620; color: #e6eef5; font-family: system-ui, sans-serif; padding: 2rem; }
+    a { color: #7fd3e6; }
+    pre { background: #17212d; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Forecasting the Coldest Capital on Earth</h1>
+  <p>Backend is running. The website comes in Phase 5. API: <a href="/api/forecast">/api/forecast</a> · <a href="/api/meta">/api/meta</a> · <a href="/docs">/docs</a></p>
+  <pre id="out">Loading forecast...</pre>
+  <script>
+    fetch("/api/forecast")
+      .then(r => r.json())
+      .then(d => { document.getElementById("out").textContent = JSON.stringify(d, null, 2); })
+      .catch(e => { document.getElementById("out").textContent = "Error: " + e; });
+  </script>
+</body>
+</html>

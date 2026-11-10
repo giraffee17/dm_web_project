@@ -93,7 +93,7 @@ Correlation between today's temperature anomaly at each site and UB's anomaly 1,
 .venv\Scripts\python -m src.train                  # all training stages (about 25 min on 2 CPU cores)
 .venv\Scripts\python -m src.evaluate --unlock-test # the one-time test evaluation (reproduces the same numbers)
 .venv\Scripts\python -m src.export                 # chart data for the website + models/meta.json
-.venv\Scripts\python -m tests.run                  # 43 checks, should end with ALL TESTS PASSED
+.venv\Scripts\python -m tests.run                  # should end with ALL TESTS PASSED
 ```
 
 ### Results (test set 2023 to 2025, evaluated once)
@@ -183,6 +183,51 @@ models in `models/reports/test_unlock_log.json`; running it again with the same 
 but testing *different* models is refused. Retraining on another computer may give slightly different models,
 which the lock would then refuse: the models in this repo are the evaluated ones.
 
+## Phase 4: backend and live forecast
+
+```
+.venv\Scripts\python -m src.live                        # print today's forecast in the terminal
+.venv\Scripts\python -m src.check_sources               # compare live data with the training data
+.venv\Scripts\python -m uvicorn app.main:app --port 7860  # start the website, open http://localhost:7860
+.venv\Scripts\python -m tests.run                       # should end with ALL TESTS PASSED
+```
+
+| Endpoint | What it returns |
+|---|---|
+| `GET /api/forecast` | Ulaanbaatar's forecast for the 3 days after the last complete day: temperature, normal, anomaly and typical error (test RMSE) |
+| `GET /api/meta` | Model information, features, training period, test metrics and the data source check summary |
+| `GET /` | The website (files in `static/`) |
+| `GET /docs` | Automatic interactive API documentation (built into FastAPI) |
+
+### How the live forecast works (`src/live.py`)
+
+1. **Fetch** the last 60 days of hourly weather for all 5 sites from the Open-Meteo **forecast** API
+   (the ERA5 archive used for training is about 5 days behind real time). 31 days are needed for the features.
+2. **Only complete past days.** The API also returns all 24 hours of *today*, but the hours that have not
+   happened yet are the weather model's own forecasts. Using them would feed forecasts into our model as if
+   they were observations, so today is always dropped and the forecast is issued from yesterday.
+3. **Validate** the data (no missing values, physical limits) and refuse it if it fails.
+4. **Same features as training:** `build_features()` from `src/features.py`, then the 3 final models predict the
+   anomaly, and the normal is added back.
+5. **Cache once per day** (Ulaanbaatar date). If the API fails, the newest cached forecast is served and marked
+   `"stale": true`; the server waits 10 minutes before trying the API again, so a down API is not hammered.
+   API calls fail fast (3 short tries), so a visitor never waits for long.
+
+### Live data vs training data (`src/check_sources.py`)
+
+The model was trained on the ERA5 archive, but the website feeds it forecast API data, which comes from a
+different weather model and a slightly different grid point (UB: 47.91 N, 106.87 E instead of 47.90 N, 106.90 E).
+The script compares both sources on the recent days they both cover, and measures the key number: **how much the
+forecast itself changes** when the model is fed live data instead of archive data. The result is saved to
+`static/data/source_check.json` and summarised on the website and in `/api/meta`.
+
+### Tests (offline, no internet needed)
+
+Real archive data is replayed as if it came from the live API. The website's forecast is **identical** to the
+training pipeline's prediction for the same day; 40 degC junk in "today's" forecast hours changes nothing;
+data with missing values is refused; the daily cache, the stale fallback and the 10 minute retry pause work;
+the API endpoints answer (200, or 503 when no forecast exists); and the source check runs.
+
 ## Data notes
 
 1. Hourly model data (1980 to 2025, 5 sites) uses `era5_seamless` (ERA5-Land + ERA5), because pure
@@ -227,11 +272,17 @@ All 19 were caught.
 | 9 | Tuning was slower than planned, and the first speed fix **cut CatBoost's own default learning rate (0.029) out of the search range**. Tuned day+2 was then no better than the defaults. | Learning rate range widened to include it, and **trial 0 of every study is now the library default**. | Tuning can never end up worse than doing nothing. |
 | 10 | One tuned setting (`bagging_temperature`) **does nothing** with CatBoost's default sampling method (MVS). | Replaced with `subsample`, which MVS does use. | A search over a setting that is ignored wastes trials and misleads. |
 
+### Problems found in Phase 4
+
+| # | Problem found | What we changed | Why it matters |
+|---|---|---|---|
+| 11 | The forecast API returns all 24 hours of **today**, including hours that have not happened yet (model forecasts). Treated as a complete day, they would enter the model as if they were observations. | The live pipeline keeps only complete past days and issues the forecast from yesterday. A test puts 40 degC junk into today's hours and checks that nothing changes. | A subtle way to mix forecasts into inputs, invisible in normal use. |
+
 ### Risks planned for later phases
 
 | Risk | Plan |
 |---|---|
-| **Train/serve mismatch:** the model learns from ERA5, but the live site uses the Open-Meteo forecast API, a different weather model. | Phase 4: compare both sources on overlapping days and show a note about it on the site. |
+| **Train/serve mismatch:** the model learns from ERA5, but the live site uses the Open-Meteo forecast API, a different weather model. | Phase 4: `src/check_sources.py` measures it on overlapping days (including how much the forecast changes); the note is shown on the site. |
 | **"Is this error good?"** An RMSE means little without a comparison. | Done in Phase 3: persistence and climatology baselines are in the results table above. |
 | **Wasted data:** the final model would only learn from 1980 to 2019. | Done in Phase 3: the deployed models are retrained on 1980 to 2022 and were evaluated once on the locked test set. |
 | **Data leakage:** features must only use information available at the end of day t. | Checked at the end of every phase before moving on. |

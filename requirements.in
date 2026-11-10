@@ -12,3 +12,4 @@ optuna==5.0.0
 shap==0.54.1
 fastapi==0.162.2
 uvicorn==0.54.0
+httpx==0.28.1

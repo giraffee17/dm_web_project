@@ -1,0 +1,390 @@
+{
+ "summary": {
+  "period": [
+   "2026-10-10",
+   "2026-11-04"
+  ],
+  "days_compared": 26,
+  "ub_temperature_bias": -0.088,
+  "ub_temperature_mae": 0.598,
+  "forecast_change_mae": {
+   "d1": 0.823,
+   "d2": 0.984,
+   "d3": 0.775
+  },
+  "note": "On 26 recent days covered by both sources, the live data (forecast API) and the training data (ERA5 archive) differ by 0.6 degC on average for Ulaanbaatar's daily temperature. Feeding the model live data instead of archive data changes the day+1 forecast by 0.82 degC on average, compared with the model's typical error of 1.4 degC.",
+  "checked_at": "2026-11-10T05:49:20+00:00"
+ },
+ "per_site": {
+  "ulaanbaatar": {
+   "t_mean": {
+    "bias": -0.088,
+    "mae": 0.598,
+    "corr": 0.997,
+    "days": 55
+   },
+   "t_min": {
+    "bias": 0.053,
+    "mae": 1.413,
+    "corr": 0.969,
+    "days": 55
+   },
+   "t_max": {
+    "bias": -0.204,
+    "mae": 0.716,
+    "corr": 0.994,
+    "days": 55
+   },
+   "dew_mean": {
+    "bias": 0.528,
+    "mae": 1.018,
+    "corr": 0.989,
+    "days": 55
+   },
+   "rh_mean": {
+    "bias": 2.843,
+    "mae": 5.552,
+    "corr": 0.879,
+    "days": 55
+   },
+   "p_mean": {
+    "bias": 0.447,
+    "mae": 0.477,
+    "corr": 0.999,
+    "days": 55
+   },
+   "wind_speed": {
+    "bias": -1.83,
+    "mae": 1.956,
+    "corr": 0.914,
+    "days": 55
+   },
+   "cloud_mean": {
+    "bias": 2.064,
+    "mae": 7.507,
+    "corr": 0.938,
+    "days": 55
+   },
+   "precip_sum": {
+    "bias": -0.171,
+    "mae": 0.385,
+    "corr": 0.937,
+    "days": 55
+   },
+   "snow_depth_end": {
+    "bias": -0.145,
+    "mae": 0.218,
+    "corr": 0.597,
+    "days": 55
+   },
+   "radiation_sum": {
+    "bias": 0.736,
+    "mae": 1.273,
+    "corr": 0.954,
+    "days": 55
+   }
+  },
+  "uliastai": {
+   "t_mean": {
+    "bias": -1.304,
+    "mae": 1.411,
+    "corr": 0.99,
+    "days": 55
+   },
+   "t_min": {
+    "bias": -1.405,
+    "mae": 2.049,
+    "corr": 0.96,
+    "days": 55
+   },
+   "t_max": {
+    "bias": -0.435,
+    "mae": 0.631,
+    "corr": 0.998,
+    "days": 55
+   },
+   "dew_mean": {
+    "bias": 0.002,
+    "mae": 1.012,
+    "corr": 0.971,
+    "days": 55
+   },
+   "rh_mean": {
+    "bias": 4.447,
+    "mae": 6.176,
+    "corr": 0.932,
+    "days": 55
+   },
+   "p_mean": {
+    "bias": 0.907,
+    "mae": 0.924,
+    "corr": 0.998,
+    "days": 55
+   },
+   "wind_speed": {
+    "bias": -1.383,
+    "mae": 1.494,
+    "corr": 0.815,
+    "days": 55
+   },
+   "cloud_mean": {
+    "bias": -0.425,
+    "mae": 8.836,
+    "corr": 0.91,
+    "days": 55
+   },
+   "precip_sum": {
+    "bias": -0.073,
+    "mae": 0.327,
+    "corr": 0.88,
+    "days": 55
+   },
+   "snow_depth_end": {
+    "bias": -1.655,
+    "mae": 1.764,
+    "corr": 0.922,
+    "days": 55
+   },
+   "radiation_sum": {
+    "bias": 0.747,
+    "mae": 1.256,
+    "corr": 0.961,
+    "days": 55
+   }
+  },
+  "khovd": {
+   "t_mean": {
+    "bias": 1.252,
+    "mae": 1.446,
+    "corr": 0.988,
+    "days": 55
+   },
+   "t_min": {
+    "bias": 2.378,
+    "mae": 2.524,
+    "corr": 0.978,
+    "days": 55
+   },
+   "t_max": {
+    "bias": -0.004,
+    "mae": 0.811,
+    "corr": 0.992,
+    "days": 55
+   },
+   "dew_mean": {
+    "bias": -0.648,
+    "mae": 1.112,
+    "corr": 0.98,
+    "days": 55
+   },
+   "rh_mean": {
+    "bias": -6.252,
+    "mae": 7.036,
+    "corr": 0.921,
+    "days": 55
+   },
+   "p_mean": {
+    "bias": 0.519,
+    "mae": 0.567,
+    "corr": 0.998,
+    "days": 55
+   },
+   "wind_speed": {
+    "bias": -0.612,
+    "mae": 1.732,
+    "corr": 0.819,
+    "days": 55
+   },
+   "cloud_mean": {
+    "bias": 0.359,
+    "mae": 8.338,
+    "corr": 0.904,
+    "days": 55
+   },
+   "precip_sum": {
+    "bias": -0.004,
+    "mae": 0.429,
+    "corr": 0.717,
+    "days": 55
+   },
+   "snow_depth_end": {
+    "bias": -0.509,
+    "mae": 1.091,
+    "corr": 0.735,
+    "days": 55
+   },
+   "radiation_sum": {
+    "bias": 0.76,
+    "mae": 1.068,
+    "corr": 0.953,
+    "days": 55
+   }
+  },
+  "moron": {
+   "t_mean": {
+    "bias": -1.175,
+    "mae": 1.343,
+    "corr": 0.986,
+    "days": 55
+   },
+   "t_min": {
+    "bias": -0.929,
+    "mae": 1.522,
+    "corr": 0.971,
+    "days": 55
+   },
+   "t_max": {
+    "bias": -0.738,
+    "mae": 1.175,
+    "corr": 0.987,
+    "days": 55
+   },
+   "dew_mean": {
+    "bias": -0.485,
+    "mae": 0.973,
+    "corr": 0.979,
+    "days": 55
+   },
+   "rh_mean": {
+    "bias": 1.994,
+    "mae": 5.491,
+    "corr": 0.846,
+    "days": 55
+   },
+   "p_mean": {
+    "bias": 0.805,
+    "mae": 0.915,
+    "corr": 0.991,
+    "days": 55
+   },
+   "wind_speed": {
+    "bias": -1.661,
+    "mae": 2.24,
+    "corr": 0.887,
+    "days": 55
+   },
+   "cloud_mean": {
+    "bias": -2.702,
+    "mae": 11.005,
+    "corr": 0.806,
+    "days": 55
+   },
+   "precip_sum": {
+    "bias": -0.038,
+    "mae": 0.198,
+    "corr": 0.933,
+    "days": 55
+   },
+   "snow_depth_end": {
+    "bias": -0.927,
+    "mae": 0.927,
+    "corr": 0.92,
+    "days": 55
+   },
+   "radiation_sum": {
+    "bias": 1.28,
+    "mae": 1.311,
+    "corr": 0.959,
+    "days": 55
+   }
+  },
+  "irkutsk": {
+   "t_mean": {
+    "bias": 0.258,
+    "mae": 0.541,
+    "corr": 0.996,
+    "days": 55
+   },
+   "t_min": {
+    "bias": 0.733,
+    "mae": 1.016,
+    "corr": 0.985,
+    "days": 55
+   },
+   "t_max": {
+    "bias": -0.002,
+    "mae": 0.642,
+    "corr": 0.994,
+    "days": 55
+   },
+   "dew_mean": {
+    "bias": 0.739,
+    "mae": 0.879,
+    "corr": 0.995,
+    "days": 55
+   },
+   "rh_mean": {
+    "bias": 2.31,
+    "mae": 3.945,
+    "corr": 0.818,
+    "days": 55
+   },
+   "p_mean": {
+    "bias": 0.169,
+    "mae": 0.199,
+    "corr": 1.0,
+    "days": 55
+   },
+   "wind_speed": {
+    "bias": -0.634,
+    "mae": 0.893,
+    "corr": 0.971,
+    "days": 55
+   },
+   "cloud_mean": {
+    "bias": -1.659,
+    "mae": 7.027,
+    "corr": 0.937,
+    "days": 55
+   },
+   "precip_sum": {
+    "bias": 0.169,
+    "mae": 0.78,
+    "corr": 0.735,
+    "days": 55
+   },
+   "snow_depth_end": {
+    "bias": -0.6,
+    "mae": 0.6,
+    "corr": 0.93,
+    "days": 55
+   },
+   "radiation_sum": {
+    "bias": 0.289,
+    "mae": 0.884,
+    "corr": 0.956,
+    "days": 55
+   }
+  }
+ },
+ "forecast_change": {
+  "d1": {
+   "mean": -0.662,
+   "mae": 0.823,
+   "max_abs": 2.704,
+   "model_test_rmse": 1.44
+  },
+  "d2": {
+   "mean": -0.887,
+   "mae": 0.984,
+   "max_abs": 3.344,
+   "model_test_rmse": 2.7
+  },
+  "d3": {
+   "mean": -0.497,
+   "mae": 0.775,
+   "max_abs": 2.71,
+   "model_test_rmse": 3.387
+  }
+ },
+ "largest_feature_differences": {
+  "mor_wind_from_n": 1.064,
+  "kho_t_range": 0.941,
+  "kho_wind_speed": 0.737,
+  "kho_wind_from_n": 0.737,
+  "uli_t_range": 0.648,
+  "uli_wind_from_e": 0.636,
+  "kho_wind_from_e": 0.608,
+  "mor_wind_from_e": 0.52
+ }
+}

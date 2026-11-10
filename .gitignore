@@ -13,3 +13,6 @@ Thumbs.db
 
 # Processed data is rebuilt in seconds with: python -m src.features
 data/processed/
+
+# Live forecast cache (rebuilt automatically)
+cache/
