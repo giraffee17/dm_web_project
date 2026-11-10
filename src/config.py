@@ -105,3 +105,22 @@ VAL_YEARS = (2020, 2022)
 TEST_YEARS = (2023, 2025)
 GAP_DAYS = 3               # days dropped at each border so day+3 targets cannot leak
 HORIZONS = [1, 2, 3]       # forecast day+1, day+2, day+3
+
+# ---------- Features (Phase 2) ----------
+NORMAL_HARMONICS = 3       # smoothness of the "normal" curve: 3 yearly waves (see README)
+SITE_PREFIX = {"ulaanbaatar": "ub", "uliastai": "uli", "khovd": "kho",
+               "moron": "mor", "irkutsk": "irk"}
+UPWIND_SITES = [s for s in SITES if s != MAIN_SITE]
+LAGS = [1, 2, 3, 7, 14]                    # UB lags, in days
+ROLL_WINDOWS = [3, 7, 30]                  # UB rolling windows, in days
+UB_LAG_VARS = ["t_anom", "p_mean", "dew_mean", "cloud_mean", "wind_from_n", "wind_from_e"]
+UB_ROLL_VARS = ["t_anom", "p_mean"]
+UPWIND_LAGS = [1, 2]                       # cold air needs 1 to 3 days to travel to UB
+UPWIND_LAG_VARS = ["t_anom", "p_mean"]
+DIFF_VARS = ["t_anom", "p_mean"]           # upwind minus UB
+MIN_HISTORY_DAYS = 31                      # longest look-back: 30 day rolling window + today
+
+# ---------- Processed outputs ----------
+DAILY_PATH = PROCESSED_DIR / "daily.parquet"        # daily values per site (also used for EDA)
+DATASET_PATH = PROCESSED_DIR / "dataset.parquet"    # features + targets + split label
+NORMALS_PATH = MODELS_DIR / "normals.json"          # normal-curve coefficients (needed when serving)
